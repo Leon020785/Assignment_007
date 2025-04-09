@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="user_table") // this is important! "user" is a keyword in H2 and not an identifier
+@Table(name = "user_table") // this is important! "user" is a keyword in H2 and not an identifier
 public class User {
 
     @Id
@@ -14,6 +14,9 @@ public class User {
     private long uid;
 
     private String name;
+
+    @OneToMany(mappedBy = "user")
+    private List<Player> players;
 
     // TODO this class needs to be extended with references to Player and
     //      the other way round (similar to the reference from Game to Player
@@ -33,6 +36,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Player> players) {
+        this.players = players;
     }
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 public class Game {
 
     @Id
-    @Column(name="game_id")
+    @Column(name = "game_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long uid;
 
@@ -24,7 +24,27 @@ public class Game {
     //      you might not want new players coming in etc.)
     //      See analogous classes in client.
 
-    @OneToMany(mappedBy="game")
+    // Additional attributes to track game state
+    private boolean started;
+    private boolean finished;
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    @OneToMany(mappedBy = "game")
     private List<Player> players;
 
     public long getUid() {

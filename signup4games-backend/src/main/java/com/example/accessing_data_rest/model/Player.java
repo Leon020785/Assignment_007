@@ -2,7 +2,6 @@ package com.example.accessing_data_rest.model;
 
 import jakarta.persistence.*;
 
-
 @Entity
 public class Player {
 
@@ -10,7 +9,7 @@ public class Player {
     //       user_id, but this is a bit tricky to start with. So this will
     //       Not be done in the context of course 02324!
     @Id
-    @Column(name="player_id")
+    @Column(name = "player_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long uid;
 
@@ -19,6 +18,10 @@ public class Player {
     @ManyToOne
     @JoinColumn
     private Game game;
+
+    @ManyToOne
+    @JoinColumn
+    private User user;
 
     // ...
 
@@ -44,6 +47,14 @@ public class Player {
 
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }

@@ -21,8 +21,10 @@ public class Game {
     //      you might not want new players coming in etc.)
     //      See analogous classes in backend.
 
-    private List<Player> players;
+    private boolean started;
+    private boolean finished;
 
+    private List<Player> players;
 
     public long getUid() {
         return uid;
@@ -64,14 +66,27 @@ public class Game {
         this.players = players;
     }
 
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+
     @Override
     public String toString() {
-        return "Game{" +
-                "uid=" + uid +
-                ", name='" + name + '\'' +
-                ", minPlayers=" + minPlayers +
-                ", maxPlayers=" + maxPlayers +
+        return "Game{" + "uid=" + uid + ", name='" + name + '\'' + ", minPlayers=" + minPlayers + ", maxPlayers=" + maxPlayers +
                 // ", players=" + players +
-                '}';
+                ", started=" + started + ", finished=" + finished + '}';
     }
 }
