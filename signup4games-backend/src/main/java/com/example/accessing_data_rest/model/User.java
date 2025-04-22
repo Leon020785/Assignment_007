@@ -33,7 +33,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
 
-    // opgaven er lavet..  this class needs to be extended with references to Player and
+    // opgaven er lavet this class needs to be extended with references to Player and
     //      the other way round (similar to the reference from Game to Player
     //      and the other way round.
 
