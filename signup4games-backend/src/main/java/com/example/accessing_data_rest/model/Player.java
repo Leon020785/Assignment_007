@@ -1,8 +1,19 @@
 package com.example.accessing_data_rest.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+/**
+ * Player entity represents a user in a specific game.
+ * Connected to both a Game and a User entity.
+ */
 @Entity
+@JsonIdentityInfo(
+        scope = Player.class,
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "uid"
+)
 public class Player {
 
     // FIXME the ID of this could actually be the two foreign keys game_id and
@@ -15,22 +26,28 @@ public class Player {
 
     private String name;
 
+    /**
+     * Reference to the game this player is participating in.
+     */
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "game_id") // Optional: specific column name
     private Game game;
 
+    /**
+     * Reference to the user who owns this player instance.
+     */
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "user_id") // Must match User's @OneToMany
     private User user;
 
-    // ...
+    // --- Getters and Setters ---
 
     public long getUid() {
         return uid;
     }
 
-    public void setUid(long id) {
-        this.uid = uid;
+    public void setUid(long uid) {
+        this.uid = uid; // Fixed: previously used wrong variable name
     }
 
     public String getName() {
@@ -56,5 +73,4 @@ public class Player {
     public void setUser(User user) {
         this.user = user;
     }
-
 }
