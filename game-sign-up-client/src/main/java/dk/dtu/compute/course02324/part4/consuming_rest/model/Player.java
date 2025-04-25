@@ -14,12 +14,10 @@ public class Player {
     private User user;
 
 
-    public long getUid() {
-        return uid;
+    public long getUid() { return uid;
     }
 
-    public void setUid(long id) {
-        this.uid = uid;
+    public void setUid(long id) { this.uid = uid;
     }
 
     public String getName() {

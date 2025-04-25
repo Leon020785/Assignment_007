@@ -1,6 +1,10 @@
 package com.example.accessing_data_rest.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import com.example.accessing_data_rest.model.GameState;
+
 
 import java.util.List;
 
@@ -15,38 +19,19 @@ public class Game {
     private String name;
 
     private int minPlayers;
-
     private int maxPlayers;
 
-    //  There could be more attributes here, kie
-    //      in which state is the sign up for the game, did
-    //      the game started or finish (after the game started
-    //      you might not want new players coming in etc.)
-    //      See analogous classes in client.
+    @Enumerated(EnumType.STRING)
+    private GameState state;
 
-    // Additional attributes to track game state
-    private boolean started;
-    private boolean finished;
+    @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
+    private User owner;
 
-    public boolean isStarted() {
-        return started;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
-    @OneToMany(mappedBy = "game")
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
 
+    // Getters og Setters
     public long getUid() {
         return uid;
     }
@@ -55,17 +40,12 @@ public class Game {
         this.uid = uid;
     }
 
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Player> getPlayers() {
-        return players;
     }
 
     public int getMinPlayers() {
@@ -84,8 +64,27 @@ public class Game {
         this.maxPlayers = maxPlayers;
     }
 
+    public GameState getState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
-
 }

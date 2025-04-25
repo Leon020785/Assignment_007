@@ -43,7 +43,11 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "uid=" + uid + ", name='" + name + '\'' + ", players=" + (players != null ? players.size() : 0) + '}';
+        return "User{" +
+                "uid=" + uid +
+                ", name='" + name + '\'' +
+                ", players=" + (players != null ? players.size() : 0) +
+                '}';
     }
 
 }
