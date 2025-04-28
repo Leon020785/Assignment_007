@@ -11,6 +11,8 @@ module rest_client {
     requires javafx.controls;
     requires spring.hateoas;
     requires spring.core;
+    requires spring.webflux;
+    requires reactor.core;
 
     exports dk.dtu.compute.course02324.part4.consuming_rest;
 

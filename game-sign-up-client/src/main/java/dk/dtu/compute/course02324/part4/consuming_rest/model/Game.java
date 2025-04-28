@@ -8,23 +8,16 @@ import java.util.List;
 public class Game {
 
     private long uid;
-
     private String name;
-
     private int minPlayers;
-
     private int maxPlayers;
-
-    // TODO There could be more attributes here, kie
-    //      in which state is the sign up for the game, did
-    //      the game started or finish (after the game started
-    //      you might not want new players coming in etc.)
-    //      See analogous classes in backend.
-
     private boolean started;
     private boolean finished;
-
     private List<Player> players;
+
+    // TOM KONSTRUKTØR
+    public Game() {
+    }
 
     public long getUid() {
         return uid;
@@ -46,6 +39,10 @@ public class Game {
         return players;
     }
 
+    public void setPlayers(List<Player> players) {
+        this.players = players;
+    }
+
     public int getMinPlayers() {
         return minPlayers;
     }
@@ -60,10 +57,6 @@ public class Game {
 
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
     }
 
     public boolean isStarted() {
@@ -82,11 +75,15 @@ public class Game {
         this.finished = finished;
     }
 
-
     @Override
     public String toString() {
-        return "Game{" + "uid=" + uid + ", name='" + name + '\'' + ", minPlayers=" + minPlayers + ", maxPlayers=" + maxPlayers +
-                // ", players=" + players +
-                ", started=" + started + ", finished=" + finished + '}';
+        return "Game{" +
+                "uid=" + uid +
+                ", name='" + name + '\'' +
+                ", minPlayers=" + minPlayers +
+                ", maxPlayers=" + maxPlayers +
+                ", started=" + started +
+                ", finished=" + finished +
+                '}';
     }
 }

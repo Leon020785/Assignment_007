@@ -21,8 +21,8 @@ public class OnlineController {
         // opretter en ny spiller navn,user og game
         Player player = new Player();
         player.setName(playerName);
-        player.setUser(user);
-        player.setGame(game);
+        player.setUserId(user.getUid());
+        player.setGameId(game.getUid());
 
         try {
             // sender spiller object til backend Post / spiller

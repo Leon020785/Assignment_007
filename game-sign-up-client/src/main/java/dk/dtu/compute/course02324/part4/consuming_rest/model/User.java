@@ -1,27 +1,24 @@
 package dk.dtu.compute.course02324.part4.consuming_rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)  // Meget vigtigt!
 public class User {
 
-    private long uid;
-
+    private Long uid;    // Sørg for "Long" med stort L
     private String name;
-
-    // TODO this class needs to be extended with references to Player and
-    //      the other way round (similar to the reference from Game to Player
-    //      and the other way round.
-
     private List<Player> players;
 
-    public long getUid() {
+    // Getters and Setters
+    public Long getUid() {   // Bare returner Long direkte
         return uid;
     }
 
-    public void setUid(long id) {
+    public void setUid(Long uid) {  // Modtag Long
         this.uid = uid;
     }
 
@@ -49,5 +46,4 @@ public class User {
                 ", players=" + (players != null ? players.size() : 0) +
                 '}';
     }
-
 }

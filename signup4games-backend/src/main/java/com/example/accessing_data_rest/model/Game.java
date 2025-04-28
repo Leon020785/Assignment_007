@@ -31,6 +31,19 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players;
 
+    @Column(nullable = false)
+    private boolean finished = false;
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+
+
     // Getters og Setters
     public long getUid() {
         return uid;

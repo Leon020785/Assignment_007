@@ -5,19 +5,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Player {
 
-    private long uid;
-
+    private Long uid;
     private String name;
+    private Long gameId;  // <-- Vi gemmer kun game ID
+    private Long userId;  // <-- Vi gemmer kun user ID
 
-    private Game game;
+    // Getters og setters
 
-    private User user;
-
-
-    public long getUid() { return uid;
+    public Long getUid() {
+        return uid;
     }
 
-    public void setUid(long id) { this.uid = uid;
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 
     public String getName() {
@@ -28,20 +28,20 @@ public class Player {
         this.name = name;
     }
 
-    public Game getGame() {
-        return game;
+    public Long getGameId() {
+        return gameId;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
+    public void setGameId(Long gameId) {
+        this.gameId = gameId;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     @Override
@@ -49,9 +49,8 @@ public class Player {
         return "Player{" +
                 "uid=" + uid +
                 ", name='" + name + '\'' +
-                ", game=" + (game != null ? game.getName() : "<none>") +
-                ", user=" + (user != null ? user.getName() : "<none>") +
+                ", gameId=" + gameId +
+                ", userId=" + userId +
                 '}';
     }
-
 }
