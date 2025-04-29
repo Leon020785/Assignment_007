@@ -6,6 +6,7 @@ import com.example.accessing_data_rest.model.Player;
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.repositories.GameRepository;
 import com.example.accessing_data_rest.repositories.PlayerRepository;
+import com.example.accessing_data_rest.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,37 @@ public class GameService {
 
     @Autowired
     private PlayerRepository playerRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public void leaveGame(Long gameId, String username) {
+        Game game = gameRepository.findByUid(gameId);
+        if (game == null) {
+            throw new RuntimeException("Game not found");
+        }
+
+        User user = (User) userRepository.findByName(username);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        if (!game.getPlayers().contains(user)) {
+            throw new RuntimeException("User is not in this game");
+        }
+
+        if (game.getState() != GameState.WAITING_FOR_PLAYERS) {
+            throw new RuntimeException("Cannot leave a game that has already started");
+        }
+
+        game.getPlayers().remove(user);
+        gameRepository.save(game);
+
+        // Remove player entity if using separate Player table
+        //playerRepository.deleteByGameAndUser(game, user);
+    }
+
+
 
     @Transactional
     public Game createGame(Game game) {
@@ -68,17 +100,4 @@ public class GameService {
     public PlayerRepository getPlayerRepository() {
         return playerRepository;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

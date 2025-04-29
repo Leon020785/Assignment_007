@@ -66,4 +66,10 @@ public class GameController {
     public void deleteGame(@PathVariable("id") long id) {
         gameService.getGameRepository().deleteById(id);
     }
+
+    @DeleteMapping("/games/{gameId}/leave")
+    public ResponseEntity<?> leaveGame(@PathVariable Long id) {
+        gameService.getGameRepository().findByUid(id);
+        return ResponseEntity.ok().build();
+    }
 }

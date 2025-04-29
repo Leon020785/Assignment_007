@@ -12,6 +12,9 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "player", path = "player")
 public interface PlayerRepository extends PagingAndSortingRepository<Player, Long>, CrudRepository<Player,Long> {
 
-    List<Player> findByName(@Param("name") String name);
+    List<Player> findByUid(long uid);
 
+    String name(String name);
+
+    long uid(long uid);
 }

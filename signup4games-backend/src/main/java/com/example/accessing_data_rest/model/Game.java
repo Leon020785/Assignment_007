@@ -34,6 +34,10 @@ public class Game {
     @Column(nullable = false)
     private boolean finished = false;
 
+    @ManyToMany
+    private List<User> participants;
+
+
     public boolean isFinished() {
         return finished;
     }
@@ -41,6 +45,8 @@ public class Game {
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
+
+
 
 
 
