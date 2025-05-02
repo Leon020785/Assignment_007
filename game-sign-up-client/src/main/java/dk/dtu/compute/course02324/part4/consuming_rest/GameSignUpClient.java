@@ -27,7 +27,7 @@ public class GameSignUpClient extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("RoboRally Client - Sign Up");
+        primaryStage.setTitle("Game SetUp");
 
         MenuBar menuBar = new MenuBar();
         Menu accountMenu = new Menu("Account");
