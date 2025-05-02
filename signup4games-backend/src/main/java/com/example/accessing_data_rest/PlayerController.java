@@ -41,6 +41,7 @@ public class PlayerController {
         Player player = new Player();
         player.setUser(user);
 
+
         return playerRepository.save(player);
     }
 }

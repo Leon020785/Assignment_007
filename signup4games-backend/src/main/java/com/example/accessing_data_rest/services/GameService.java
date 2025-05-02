@@ -29,7 +29,7 @@ public class GameService {
     public void deletePlayer(long playerId, String username) throws Throwable {
         System.out.println("Attempting to delete player with ID: " + playerId);
 
-        Player player = (Player) playerRepository.findByUid(playerId);
+        Player player = playerRepository.findByUid(playerId);
                 if (player == null) {
                     throw new Exception("Player with ID: " + playerId + " not found");
                 }
