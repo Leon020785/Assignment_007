@@ -11,7 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
 @RepositoryRestResource(collectionResourceRel = "player", path = "player")
-public interface PlayerRepository<Game> extends JpaRepository<Player, Long>, CrudRepository<Player,Long> {
+public interface PlayerRepository extends JpaRepository<Player, Long>, CrudRepository<Player,Long> {
 
     Player findByUid(long uid);
 
@@ -19,6 +19,6 @@ public interface PlayerRepository<Game> extends JpaRepository<Player, Long>, Cru
 
     long uid(long uid);
 
-    List<Player> findByGame(Game game);
+    //List<Player> findByGame(Game game);
 
 }
