@@ -26,30 +26,27 @@ public class GameService {
     @Autowired
     private UserRepository userRepository;
 
-    public void leaveGame(Long gameId, String username) {
-        Game game = gameRepository.findByUid(gameId);
-        if (game == null) {
-            throw new RuntimeException("Game not found");
+    public void deletePlayer(long playerId, String username) throws Throwable {
+        System.out.println("Attempting to delete player with ID: " + playerId);
+
+        Player player = (Player) playerRepository.findByUid(playerId);
+                if (player == null) {
+                    throw new Exception("Player with ID: " + playerId + " not found");
+                }
+                //.orElseThrow(() -> new RuntimeException("Player not found"));
+
+        Game game = player.getGame();
+        User user = player.getUser();
+
+        // Kun spilleren selv eller spillets ejer må slette spilleren
+        if (!user.getName().equals(username) &&
+                !game.getOwner().getName().equals(username)) {
+            throw new RuntimeException("Not authorized to delete this player");
         }
 
-        User user = (User) userRepository.findByName(username);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-        if (!game.getPlayers().contains(user)) {
-            throw new RuntimeException("User is not in this game");
-        }
-
-        if (game.getState() != GameState.WAITING_FOR_PLAYERS) {
-            throw new RuntimeException("Cannot leave a game that has already started");
-        }
-
-        game.getPlayers().remove(user);
-        gameRepository.save(game);
-
-        // Remove player entity if using separate Player table
-        //playerRepository.deleteByGameAndUser(game, user);
+        game.getPlayers().remove(player); // fjern fra spillets liste
+        playerRepository.delete(player);  // slet fra databasen
+        gameRepository.save(game);        // gem spillet igen
     }
 
 
@@ -67,7 +64,7 @@ public class GameService {
             playerRepository.save(player);
         }
 
-        return gameRepository.findByUid(game.getUid());
+        return gameRepository.findPlayerByUid(game.getUid());
     }
     @Transactional
     public Player joinGame(Game game, User user) {
@@ -100,4 +97,21 @@ public class GameService {
     public PlayerRepository getPlayerRepository() {
         return playerRepository;
     }
+
+    public void deleteGameIfOwner(long gameId, String username) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Game not found"));
+
+        User owner = game.getOwner();
+        if (owner == null || !owner.getName().equals(username)) {
+            throw new RuntimeException("Only the game owner can delete this game");
+        }
+
+//        // fjern spillere først
+//        List <Player> player = gameRepository.findPlayerByUid(uid);
+//        playerRepository.deleteAll(player);
+//
+//        gameRepository.delete(game);
+    }
+
 }

@@ -35,7 +35,7 @@ public class GameController {
 
     @PostMapping(value = "/joingame", consumes = "application/json", produces = "application/json")
     public Player joinGame(@RequestParam("gameid") long gameid, @RequestBody User user) {
-        Game game = gameService.getGameRepository().findByUid(gameid);
+        Game game = gameService.getGameRepository().findPlayerByUid(gameid);
         return gameService.joinGame(game, user);
     }
 
@@ -63,13 +63,13 @@ public class GameController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGame(@PathVariable("id") long id) {
-        gameService.getGameRepository().deleteById(id);
-    }
-
-    @DeleteMapping("/games/{gameId}/leave")
-    public ResponseEntity<?> leaveGame(@PathVariable Long id) {
-        gameService.getGameRepository().findByUid(id);
+    public ResponseEntity<Void> deleteGame(
+            @PathVariable("id") long id,
+            @RequestParam("username") String username) {
+        gameService.deleteGameIfOwner(id, username);
         return ResponseEntity.ok().build();
     }
+
+
+
 }

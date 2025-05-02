@@ -19,8 +19,11 @@ public interface GameRepository extends PagingAndSortingRepository<Game, Long>, 
 
     List<Game> findByStateIs(@Param("state") GameState state);
 
-    Game findByUid(long uid);
+    Game findPlayerByUid(long uid);
 
 
+    long uid(long uid);
 
+
+    ;
 }
