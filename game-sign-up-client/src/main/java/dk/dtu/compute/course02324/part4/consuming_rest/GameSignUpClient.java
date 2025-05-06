@@ -5,7 +5,6 @@ import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.PlayerRequest;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,11 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 public class GameSignUpClient extends Application {
 
     private final WebClient webClient = WebClient.builder()
@@ -26,6 +20,9 @@ public class GameSignUpClient extends Application {
             .build();
 
     private User signedInUser;
+    private Player joinedPlayer; // <-- nyt felt til at holde den aktive spiller
+    ;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -44,45 +41,24 @@ public class GameSignUpClient extends Application {
         MenuItem signInItem = new MenuItem("Sign In");
         signInItem.setOnAction(e -> openSignInWindow());
 
+        MenuItem leaveGameItem = new MenuItem("Leave Game"); // <-- tilføjet Leave Game
+        leaveGameItem.setOnAction(e -> leaveGame());         // <-- tilføjet handler
 
-        MenuItem createPlayerItem = new MenuItem("Create Player");
-        createPlayerItem.setOnAction(e -> createPlayer());
-
-        accountMenu.getItems().add(createPlayerItem);
 
         MenuItem createGameItem = new MenuItem("Create Game");
         createGameItem.setOnAction(e -> createGame());
-        accountMenu.getItems().add(createGameItem);
 
         MenuItem joinGameItem = new MenuItem("Join Game");
         joinGameItem.setOnAction(e -> joinGame());
-        accountMenu.getItems().add(joinGameItem);
 
-        MenuItem leaveGameItem = new MenuItem("Leave Game");
-        leaveGameItem.setOnAction(e -> {
-            if (signedInUser == null) {
-                showAlert(Alert.AlertType.ERROR, "Error", "You must be signed in to leave a game.");
-                return;
-            }
+        accountMenu.getItems().addAll(
+                signUpItem,
+                signInItem,
+                createGameItem,
+                joinGameItem,
+                leaveGameItem
+        );
 
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Leave Game");
-            dialog.setHeaderText("Leave a Game");
-            dialog.setContentText("Enter Game ID:");
-
-            dialog.showAndWait().ifPresent(gameIdStr -> {
-                try {
-                    long gameId = Long.parseLong(gameIdStr);
-                    leaveGame(gameId, signedInUser.getUid());
-                } catch (NumberFormatException ex) {
-                    showAlert(Alert.AlertType.ERROR, "Error", "Invalid Game ID.");
-                }
-            });
-        });
-        accountMenu.getItems().add(leaveGameItem);
-
-
-        accountMenu.getItems().addAll(signUpItem, signInItem);
         menuBar.getMenus().add(accountMenu);
 
         VBox vBox = new VBox(menuBar);
@@ -158,28 +134,7 @@ public class GameSignUpClient extends Application {
         signInStage.show();
     }
 
-    private void signUp(String name) {
-        try {
-            User user = new User();
-            user.setName(name);
 
-            User createdUser = webClient.post()
-                    .uri("/user")
-                    .bodyValue(user)
-                    .retrieve()
-                    .bodyToMono(User.class)
-                    .block();
-
-            if (createdUser != null) {
-                signedInUser = createdUser;
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Successfully signed up as: " + createdUser.getName());
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Sign up failed.");
-            }
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Sign up failed: " + e.getMessage());
-        }
-    }
 
     private void signIn(long userId) {
         try {
@@ -197,31 +152,6 @@ public class GameSignUpClient extends Application {
             }
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Sign in failed: " + e.getMessage());
-        }
-    }
-
-    private void createPlayer() {
-        if (signedInUser == null) {
-            showAlert(Alert.AlertType.ERROR, "Error", "You must be signed in to create a player.");
-            return;
-        }
-
-        try {
-            String userLink = "http://localhost:8080/roborally/users/" + signedInUser.getUid();
-
-            PlayerRequest playerRequest = new PlayerRequest();
-            playerRequest.setUser(userLink);
-
-            webClient.post()
-                    .uri("/roborally/players")
-                    .bodyValue(playerRequest)
-                    .retrieve()
-                    .bodyToMono(Void.class)
-                    .block();
-
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Player created for user: " + signedInUser.getName());
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Player creation failed: " + e.getMessage());
         }
     }
 
@@ -258,7 +188,7 @@ public class GameSignUpClient extends Application {
             try {
                 long gameId = Long.parseLong(gameIdStr);
 
-                Player joinedPlayer = webClient.post()
+                joinedPlayer = webClient.post() // <-- ændret: gemmer spilleren i en feltvariabel
                         .uri(uriBuilder -> uriBuilder
                                 .path("/roborally/games/joingame")
                                 .queryParam("gameid", gameId)
@@ -278,35 +208,60 @@ public class GameSignUpClient extends Application {
             }
         });
     }
-
-    private void leaveGame(Long gameId, Long userId) {
-
+    private void signUp(String name) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/games/" + gameId + "/leave?userId=" + userId)).POST(HttpRequest.BodyPublishers.noBody()).build();
+            User user = new User();
+            user.setName(name);
 
-            client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
-                if (response.statusCode() == 200) {
-                    Platform.runLater(() -> {
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "You left the game.");
-                        refreshGameList(); // opdater GUI
-                    });
+            User createdUser = webClient.post()
+                    .uri("/user")
+                    .bodyValue(user)
+                    .retrieve()
+                    .bodyToMono(User.class)
+                    .block();
 
-                } else {
-                    Platform.runLater(() -> {
-                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to leave game: " + response.body());
-                    });
-                }
-            });
+            if (createdUser != null) {
+                signedInUser = createdUser;
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Successfully signed up as: " + createdUser.getName() + " User ID: " + createdUser.getUid());
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Sign up failed.");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR,
-                    "Error", "Exception occurred: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error", "Sign up failed: " + e.getMessage());
         }
     }
 
-    private void refreshGameList() {
+    private void leaveGame() {
+        if (joinedPlayer == null) {
+            showAlert(Alert.AlertType.ERROR, "Error", "You are not currently in a game.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Leave Game");
+        confirm.setHeaderText("Are you sure you want to leave the game?");
+        confirm.setContentText("This action cannot be undone.");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    webClient.delete()
+                            .uri("/roborally/games/player/" + joinedPlayer.getUid())
+                            .retrieve()
+                            .toBodilessEntity()
+                            .block();
+
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "You have left the game.");
+                    joinedPlayer = null; // rydder spilleren
+                } catch (Exception e) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to leave game: " + e.getMessage());
+                }
+            }
+        });
     }
+
+
+
 
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
