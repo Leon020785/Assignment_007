@@ -19,6 +19,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long>, CrudRepos
 
     long uid(long uid);
 
-    //List<Player> findByGame(Game game);
 
 }

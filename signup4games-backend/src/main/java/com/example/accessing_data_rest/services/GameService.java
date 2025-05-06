@@ -14,11 +14,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
 public class GameService {
 
     @Autowired
-    private static GameRepository gameRepository;
+    private GameRepository gameRepository;
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -33,7 +34,6 @@ public class GameService {
                 if (player == null) {
                     throw new Exception("Player with ID: " + playerId + " not found");
                 }
-                //.orElseThrow(() -> new RuntimeException("Player not found"));
 
         Game game = player.getGame();
         User user = player.getUser();
@@ -55,6 +55,10 @@ public class GameService {
     public Game createGame(Game game) {
         gameRepository.save(game);
 
+        System.out.println("✅ Game created: " + game.getUid());
+
+
+
         User owner = game.getOwner();
         if (owner != null) {
             Player player = new Player();
@@ -62,6 +66,11 @@ public class GameService {
             player.setUser(owner);
             player.setName(owner.getName());
             playerRepository.save(player);
+
+            System.out.println("👤 Player created: " + owner.getName());
+
+        } else {
+            System.out.println("No owner set for the game. ");
         }
 
         return gameRepository.findPlayerByUid(game.getUid());
@@ -107,14 +116,9 @@ public class GameService {
             throw new RuntimeException("Only the game owner can delete this game");
         }
 
-//        // fjern spillere først
-//        List <Player> player = gameRepository.findPlayerByUid(uid);
-//        playerRepository.deleteAll(player);
-//
-//        gameRepository.delete(game);
     }
 
-    public static Game startGame(long gameId) {
+    public Game startGame(long gameId) {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new RuntimeException("Game not found"));
 

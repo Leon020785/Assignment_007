@@ -8,17 +8,19 @@ import com.example.accessing_data_rest.repositories.PlayerRepository;
 import com.example.accessing_data_rest.repositories.UserRepository;
 import com.example.accessing_data_rest.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-
 @RestController
 @RequestMapping("/roborally/players")
 public class PlayerController {
+
+    @Autowired
+    private GameService gameService;
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -26,16 +28,8 @@ public class PlayerController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private GameService gameService;
-
-
-
     @PostMapping
     public Player createPlayer(@RequestBody PlayerRequest playerRequest) throws URISyntaxException {
-        // Eksempel på input i playerRequest.getUser():
-        // "http://localhost:8080/roborally/users/4"
-
         URI userUri = new URI(playerRequest.getUser());
         String[] segments = userUri.getPath().split("/");
         Long userId = Long.parseLong(segments[segments.length - 1]);
@@ -50,7 +44,6 @@ public class PlayerController {
         Player player = new Player();
         player.setUser(user);
 
-
         return playerRepository.save(player);
     }
 
@@ -64,10 +57,8 @@ public class PlayerController {
         }
     }
 
-
-
     @PostMapping("/{id}/start")
     public Game startGame(@PathVariable("id") long gameId) {
-        return GameService.startGame(gameId);
+        return gameService.startGame(gameId);
     }
 }
