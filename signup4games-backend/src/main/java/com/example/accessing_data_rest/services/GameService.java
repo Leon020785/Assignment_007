@@ -18,7 +18,7 @@ import java.util.List;
 public class GameService {
 
     @Autowired
-    private GameRepository gameRepository;
+    private static GameRepository gameRepository;
 
     @Autowired
     private PlayerRepository playerRepository;
@@ -112,6 +112,23 @@ public class GameService {
 //        playerRepository.deleteAll(player);
 //
 //        gameRepository.delete(game);
+    }
+
+    public static Game startGame(long gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Game not found"));
+
+        if (game.getState() != GameState.SIGNUP) {
+            throw new IllegalStateException("Game is not in SIGNUP state");
+        }
+
+        long playerCount = gameRepository.countByStateAndUid(GameState.SIGNUP, gameId);
+        if (playerCount < game.getMinPlayers()) {
+            throw new IllegalStateException("Not enough players to start the game");
+        }
+
+        game.setState(GameState.ACTIVE);
+        return gameRepository.save(game);
     }
 
 }

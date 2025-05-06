@@ -1,10 +1,12 @@
 package com.example.accessing_data_rest;
 
+import com.example.accessing_data_rest.model.Game;
 import com.example.accessing_data_rest.model.Player;
 import com.example.accessing_data_rest.model.PlayerRequest;
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.repositories.PlayerRepository;
 import com.example.accessing_data_rest.repositories.UserRepository;
+import com.example.accessing_data_rest.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,5 +45,10 @@ public class PlayerController {
 
 
         return playerRepository.save(player);
+    }
+
+    @PostMapping("/{id}/start")
+    public Game startGame(@PathVariable("id") long gameId) {
+        return GameService.startGame(gameId);
     }
 }
