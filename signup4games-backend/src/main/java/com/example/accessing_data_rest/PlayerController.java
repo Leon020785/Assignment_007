@@ -9,10 +9,12 @@ import com.example.accessing_data_rest.repositories.UserRepository;
 import com.example.accessing_data_rest.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/roborally/players")
@@ -23,6 +25,11 @@ public class PlayerController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private GameService gameService;
+
+
 
     @PostMapping
     public Player createPlayer(@RequestBody PlayerRequest playerRequest) throws URISyntaxException {
@@ -46,6 +53,18 @@ public class PlayerController {
 
         return playerRepository.save(player);
     }
+
+    @DeleteMapping("/leave")
+    public ResponseEntity<String> leaveGame(@RequestParam long playerId, @RequestParam String username) {
+        try {
+            gameService.deletePlayer(playerId, username);
+            return ResponseEntity.ok("Player successfully removed from game");
+        } catch (Throwable e) {
+            return ResponseEntity.status(403).body("Error: " + e.getMessage());
+        }
+    }
+
+
 
     @PostMapping("/{id}/start")
     public Game startGame(@PathVariable("id") long gameId) {

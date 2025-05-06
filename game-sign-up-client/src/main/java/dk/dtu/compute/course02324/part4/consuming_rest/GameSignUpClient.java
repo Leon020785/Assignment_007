@@ -53,10 +53,6 @@ public class GameSignUpClient extends Application {
         accountMenu.getItems().add(joinGameItem);
 
 
-
-
-
-
         accountMenu.getItems().addAll(signUpItem, signInItem);
         menuBar.getMenus().add(accountMenu);
 
