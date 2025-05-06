@@ -5,6 +5,7 @@ import dk.dtu.compute.course02324.part4.consuming_rest.model.Player;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.PlayerRequest;
 import dk.dtu.compute.course02324.part4.consuming_rest.model.User;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,6 +13,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class GameSignUpClient extends Application {
 
@@ -51,6 +57,29 @@ public class GameSignUpClient extends Application {
         MenuItem joinGameItem = new MenuItem("Join Game");
         joinGameItem.setOnAction(e -> joinGame());
         accountMenu.getItems().add(joinGameItem);
+
+        MenuItem leaveGameItem = new MenuItem("Leave Game");
+        leaveGameItem.setOnAction(e -> {
+            if (signedInUser == null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "You must be signed in to leave a game.");
+                return;
+            }
+
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Leave Game");
+            dialog.setHeaderText("Leave a Game");
+            dialog.setContentText("Enter Game ID:");
+
+            dialog.showAndWait().ifPresent(gameIdStr -> {
+                try {
+                    long gameId = Long.parseLong(gameIdStr);
+                    leaveGame(gameId, signedInUser.getUid());
+                } catch (NumberFormatException ex) {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Invalid Game ID.");
+                }
+            });
+        });
+        accountMenu.getItems().add(leaveGameItem);
 
 
         accountMenu.getItems().addAll(signUpItem, signInItem);
@@ -249,6 +278,36 @@ public class GameSignUpClient extends Application {
             }
         });
     }
+
+    private void leaveGame(Long gameId, Long userId) {
+
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:8080/games/" + gameId + "/leave?userId=" + userId)).POST(HttpRequest.BodyPublishers.noBody()).build();
+
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
+                if (response.statusCode() == 200) {
+                    Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "You left the game.");
+                        refreshGameList(); // opdater GUI
+                    });
+
+                } else {
+                    Platform.runLater(() -> {
+                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to leave game: " + response.body());
+                    });
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR,
+                    "Error", "Exception occurred: " + e.getMessage());
+        }
+    }
+
+    private void refreshGameList() {
+    }
+
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
