@@ -27,29 +27,6 @@ public class GameService {
     @Autowired
     private UserRepository userRepository;
 
-    public void deletePlayer(long playerId, String username) throws Throwable {
-        System.out.println("Attempting to delete player with ID: " + playerId);
-
-        Player player = playerRepository.findByUid(playerId);
-                if (player == null) {
-                    throw new Exception("Player with ID: " + playerId + " not found");
-                }
-
-        Game game = player.getGame();
-        User user = player.getUser();
-
-        // Kun spilleren selv eller spillets ejer må slette spilleren
-        if (!user.getName().equals(username) &&
-                !game.getOwner().getName().equals(username)) {
-            throw new RuntimeException("Not authorized to delete this player");
-        }
-
-        game.getPlayers().remove(player); // fjern fra spillets liste
-        playerRepository.delete(player);  // slet fra databasen
-        gameRepository.save(game);        // gem spillet igen
-    }
-
-
 
     @Transactional
     public Game createGame(Game game) {
@@ -97,6 +74,10 @@ public class GameService {
         List<Game> result = new ArrayList<>();
         gameRepository.findByStateIs(GameState.SIGNUP).forEach(result::add);
         return result;
+    }
+
+    public List<Game> getGamesByName(String name) {
+        return gameRepository.findByName(name);
     }
     @Transactional
     public Game startGame(Game game) {

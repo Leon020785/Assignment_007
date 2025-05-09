@@ -22,7 +22,7 @@ public interface GameRepository extends PagingAndSortingRepository<Game, Long>, 
     Game findPlayerByUid(long uid);
 
 
-    long uid(long uid);
+    //long uid(long uid);
 
     long countByStateAndUid(GameState gameState, long gameId);
 

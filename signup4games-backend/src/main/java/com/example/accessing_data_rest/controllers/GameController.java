@@ -28,6 +28,11 @@ public class GameController {
         return gameService.getOpenGames();
     }
 
+    @GetMapping(value = "/search", produces = "application/json")
+    public List<Game> getGamesByName(@RequestParam("name") String name) {
+        return gameService.getGamesByName(name);
+    }
+
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
     public Game postGame(@RequestBody Game game) {
         return gameService.createGame(game);
@@ -69,6 +74,8 @@ public class GameController {
         gameService.deleteGameIfOwner(id, username);
         return ResponseEntity.ok().build();
     }
+
+
 
 
 
