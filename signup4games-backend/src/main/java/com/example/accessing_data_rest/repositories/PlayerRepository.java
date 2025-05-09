@@ -15,4 +15,7 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     // Find players by their name
     List<Player> findByName(@Param("name") String name);
+
+    // Find all players associated with a specific game
+    List<Player> findByGameUid(@Param("gameUid") long gameUid);
 }

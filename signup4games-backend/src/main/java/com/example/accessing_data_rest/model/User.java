@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
  * Annotated for both JPA (database mapping) and Jackson (JSON serialization).
  */
 @Entity
-@Table(name = "user_table") // this is important! "user" is a keyword in H2 and not an identifier
+@Table(name = "user_table") // "user" is a keyword in H2 and cannot be used as a table name
 @JsonIdentityInfo(
         scope = User.class,
         generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -31,11 +32,9 @@ public class User {
      * Will be mapped by the "user" field in the Player class.
      */
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
-    // opgaven er lavet this class needs to be extended with references to Player and
-    //      the other way round (similar to the reference from Game to Player
-    //      and the other way round.
+    // --- Getters and Setters ---
 
     public long getUid() {
         return uid;
@@ -50,6 +49,9 @@ public class User {
     }
 
     public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("User name cannot be empty.");
+        }
         this.name = name;
     }
 
@@ -58,6 +60,18 @@ public class User {
     }
 
     public void setPlayers(List<Player> players) {
+        if (players == null) {
+            throw new IllegalArgumentException("Players list cannot be null.");
+        }
         this.players = players;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "uid=" + uid +
+                ", name='" + name + '\'' +
+                ", players=" + (players != null ? players.size() : "null") +
+                '}';
     }
 }

@@ -14,27 +14,38 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    // Hent alle brugere
     @GetMapping(value = "", produces = "application/json")
     public List<User> getAllUsers() {
-        return (List<User>) userRepository.findAll();
+        System.out.println("📋 Fetching all users...");
+        List<User> users = (List<User>) userRepository.findAll();
+        System.out.println("✅ Found " + users.size() + " users.");
+        return users;
     }
 
-    // Søg efter brugere via navn
     @GetMapping(value = "/searchusers", produces = "application/json")
     public List<User> searchUsers(@RequestParam("name") String name) {
-        return userRepository.findByName(name);
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("User name cannot be empty.");
+        }
+        System.out.println("🔍 Searching for users with name: " + name);
+        List<User> users = userRepository.findByName(name);
+        if (users.isEmpty()) {
+            System.out.println("⚠️ No users found with the name: " + name);
+        } else {
+            System.out.println("✅ Found " + users.size() + " user(s) with the name: " + name);
+        }
+        return users;
     }
 
-    // Opret en ny bruger
     @PostMapping(value = "", consumes = "application/json", produces = "application/json")
     public User postUser(@RequestBody User user) {
-        return userRepository.save(user);
+        if (user == null || user.getName() == null || user.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("User name cannot be empty.");
+        }
+        User savedUser = userRepository.save(user);
+        System.out.println("✅ User created with ID: " + savedUser.getUid() + " and name: " + savedUser.getName());
+        return savedUser;
     }
-
-
-
-
 
 
 }

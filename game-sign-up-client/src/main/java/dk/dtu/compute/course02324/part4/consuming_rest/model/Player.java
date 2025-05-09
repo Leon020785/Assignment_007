@@ -36,6 +36,25 @@ public class Player {
         this.gameId = gameId;
     }
 
+    // Proper getGame method to retrieve the actual Game object from the backend
+    public Game getGame() {
+        if (this.gameId == null) {
+            return null;
+        }
+        try {
+            org.springframework.web.reactive.function.client.WebClient webClient =
+                    org.springframework.web.reactive.function.client.WebClient.create("http://localhost:8080");
+            return webClient.get()
+                    .uri("/roborally/games/" + this.gameId)
+                    .retrieve()
+                    .bodyToMono(Game.class)
+                    .block();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public Long getUserId() {
         return userId;
     }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.NotFoundAction;
 import com.example.accessing_data_rest.model.GameState;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,13 +30,16 @@ public class Game {
     private User owner;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
+
+    @ManyToMany
+    private List<User> participants = new ArrayList<>();
 
     @Column(nullable = false)
     private boolean finished = false;
 
-    @ManyToMany
-    private List<User> participants;
+    @Column(nullable = false)
+    private boolean started = false;
 
 
     public boolean isFinished() {
@@ -46,11 +50,14 @@ public class Game {
         this.finished = finished;
     }
 
+    public boolean isStarted() {
+        return started;
+    }
 
-
-
-
-    // Getters og Setters
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+    // Getters and Setters
     public long getUid() {
         return uid;
     }
@@ -83,8 +90,16 @@ public class Game {
         this.maxPlayers = maxPlayers;
     }
 
-    public GameState getState() {
-        return state;
+    public String getState() {
+        if (finished) {
+            return "FINISHED";
+        } else if (started) {
+            return "ACTIVE";
+        } else if (players != null && players.size() >= minPlayers) {
+            return "READY";
+        } else {
+            return "SIGNUP";
+        }
     }
 
     public void setState(GameState state) {
@@ -105,5 +120,13 @@ public class Game {
 
     public void setPlayers(List<Player> players) {
         this.players = players;
+    }
+
+    public List<User> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<User> participants) {
+        this.participants = participants;
     }
 }

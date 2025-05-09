@@ -5,30 +5,34 @@ import com.example.accessing_data_rest.model.GameState;
 import com.example.accessing_data_rest.model.Player;
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.services.GameService;
-import com.example.accessing_data_rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/games")
+@RequestMapping("/roborally/games")
 public class GameController {
 
     @Autowired
     private GameService gameService;
-    @Autowired
-    private UserService userService;
 
     @GetMapping(value = "", produces = "application/json")
     public List<Game> getGames() {
         return gameService.getGames();
     }
 
-    @GetMapping(value = "/open", produces = "application/json")
+    @GetMapping(value = "/opengames", produces = "application/json")
     public List<Game> getOpenGames() {
-        return gameService.getOpenGames();
+        Iterable<Game> allGames = gameService.getGameRepository().findAll();
+        return java.util.stream.StreamSupport.stream(allGames.spliterator(), false)
+                .filter(game -> {
+                    String state = game.getState();
+                    return "SIGNUP".equalsIgnoreCase(state) || "READY".equalsIgnoreCase(state);
+                })
+                .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/search", produces = "application/json")
@@ -41,19 +45,25 @@ public class GameController {
         return gameService.createGame(game);
     }
 
-
-    @PostMapping(value = "/join", produces = "application/json")
-    public Player joinGame(@RequestParam("gameId") long gameId, @RequestParam("userId") long userId) {
-        Game game = gameService.getGameRepository().findById(gameId)
-                .orElseThrow(() -> new RuntimeException("Game not found"));
-        return gameService.joinGame(game, userId);
+    @PostMapping(value = "/joingame", consumes = "application/json", produces = "application/json")
+    public Player joinGame(@RequestParam("gameid") long gameid, @RequestBody User user) {
+        Game game = gameService.getGameRepository().findById(gameid)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + gameid));
+        return gameService.joinGame(game, user);
     }
 
-
-
-    @PostMapping(value = "/start", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/startgame", consumes = "application/json", produces = "application/json")
     public Game startGame(@RequestBody Game game) {
-        return gameService.startGame(game);
+        Game existingGame = gameService.getGameRepository().findById(game.getUid())
+                .orElseThrow(() -> new IllegalArgumentException("Game not found with ID: " + game.getUid()));
+
+        // Set the game to active if it has enough players
+        if (existingGame.getPlayers().size() >= existingGame.getMinPlayers()) {
+            existingGame.setStarted(true);
+            gameService.getGameRepository().save(existingGame);
+        }
+
+        return existingGame;
     }
 
     @PostMapping("/create")
@@ -62,13 +72,17 @@ public class GameController {
         game.setName("New Game");
         game.setMinPlayers(2);
         game.setMaxPlayers(6);
-        game.setState(GameState.WAITING_FOR_PLAYERS);
+        game.setStarted(false);
+        game.setFinished(false);
+        game.setPlayers(new java.util.ArrayList<>());
 
+        // Save the game and return the response
         gameService.getGameRepository().save(game);
         return ResponseEntity.ok(game);
     }
 
-    @DeleteMapping("/players/{id}")
+
+    @DeleteMapping("/player/{id}")
     public void deletePlayer(@PathVariable("id") long id) {
         gameService.getPlayerRepository().deleteById(id);
     }
@@ -81,18 +95,8 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/users")
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
-    }
 
-    @PutMapping("/users/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userService.updateUser(id, updatedUser);
-    }
 
-    @DeleteMapping("/users/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-    }
+
+
 }

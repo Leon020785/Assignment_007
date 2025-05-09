@@ -18,6 +18,9 @@ public class Game {
 
     // TOM KONSTRUKTØR
     public Game() {
+        this.started = false;
+        this.finished = false;
+        this.players = new java.util.ArrayList<>();
     }
 
 
@@ -75,6 +78,18 @@ public class Game {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
+    }
+
+    public String getState() {
+        if (finished) {
+            return "FINISHED";
+        } else if (started) {
+            return "ACTIVE";
+        } else if (players.size() >= minPlayers) {
+            return "READY";
+        } else {
+            return "SIGNUP";
+        }
     }
 
     @Override

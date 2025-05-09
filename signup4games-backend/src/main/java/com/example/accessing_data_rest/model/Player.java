@@ -16,9 +16,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 )
 public class Player {
 
-    // FIXME the ID of this could actually be the two foreign keys game_id and
-    //       user_id, but this is a bit tricky to start with. So this will
-    //       Not be done in the context of course 02324!
     @Id
     @Column(name = "player_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,18 +23,12 @@ public class Player {
 
     private String name;
 
-    /**
-     * Reference to the game this player is participating in.
-     */
     @ManyToOne
-    @JoinColumn(name = "game_id") // Optional: specific column name
+    @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
-    /**
-     * Reference to the user who owns this player instance.
-     */
     @ManyToOne
-    @JoinColumn(name = "user_id") // Must match User's @OneToMany
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // --- Getters and Setters ---
@@ -47,7 +38,7 @@ public class Player {
     }
 
     public void setUid(long uid) {
-        this.uid = uid; // Fixed: previously used wrong variable name
+        this.uid = uid;
     }
 
     public String getName() {
@@ -63,6 +54,9 @@ public class Player {
     }
 
     public void setGame(Game game) {
+        if (game == null) {
+            throw new IllegalArgumentException("Game cannot be null.");
+        }
         this.game = game;
     }
 
@@ -71,6 +65,19 @@ public class Player {
     }
 
     public void setUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null.");
+        }
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "uid=" + uid +
+                ", name='" + name + '\'' +
+                ", game=" + (game != null ? game.getUid() : "null") +
+                ", user=" + (user != null ? user.getUid() : "null") +
+                '}';
     }
 }
