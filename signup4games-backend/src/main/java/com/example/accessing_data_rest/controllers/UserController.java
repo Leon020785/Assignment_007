@@ -1,10 +1,8 @@
-package com.example.accessing_data_rest;
+package com.example.accessing_data_rest.controllers;
 
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.repositories.UserRepository;
-import com.example.accessing_data_rest.services.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

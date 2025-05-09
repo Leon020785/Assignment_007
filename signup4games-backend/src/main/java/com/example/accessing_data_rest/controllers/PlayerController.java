@@ -1,4 +1,4 @@
-package com.example.accessing_data_rest;
+package com.example.accessing_data_rest.controllers;
 
 import com.example.accessing_data_rest.model.Game;
 import com.example.accessing_data_rest.model.Player;
