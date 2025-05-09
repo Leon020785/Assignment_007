@@ -5,6 +5,7 @@ import com.example.accessing_data_rest.model.GameState;
 import com.example.accessing_data_rest.model.Player;
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.services.GameService;
+import com.example.accessing_data_rest.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,18 +13,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/roborally/games")
+@RequestMapping("/games")
 public class GameController {
 
     @Autowired
     private GameService gameService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping(value = "", produces = "application/json")
     public List<Game> getGames() {
         return gameService.getGames();
     }
 
-    @GetMapping(value = "/opengames", produces = "application/json")
+    @GetMapping(value = "/open", produces = "application/json")
     public List<Game> getOpenGames() {
         return gameService.getOpenGames();
     }
@@ -38,13 +41,17 @@ public class GameController {
         return gameService.createGame(game);
     }
 
-    @PostMapping(value = "/joingame", consumes = "application/json", produces = "application/json")
-    public Player joinGame(@RequestParam("gameid") long gameid, @RequestBody User user) {
-        Game game = gameService.getGameRepository().findPlayerByUid(gameid);
-        return gameService.joinGame(game, user);
+
+    @PostMapping(value = "/join", produces = "application/json")
+    public Player joinGame(@RequestParam("gameId") long gameId, @RequestParam("userId") long userId) {
+        Game game = gameService.getGameRepository().findById(gameId)
+                .orElseThrow(() -> new RuntimeException("Game not found"));
+        return gameService.joinGame(game, userId);
     }
 
-    @PostMapping(value = "/startgame", consumes = "application/json", produces = "application/json")
+
+
+    @PostMapping(value = "/start", consumes = "application/json", produces = "application/json")
     public Game startGame(@RequestBody Game game) {
         return gameService.startGame(game);
     }
@@ -61,8 +68,7 @@ public class GameController {
         return ResponseEntity.ok(game);
     }
 
-
-    @DeleteMapping("/player/{id}")
+    @DeleteMapping("/players/{id}")
     public void deletePlayer(@PathVariable("id") long id) {
         gameService.getPlayerRepository().deleteById(id);
     }
@@ -75,8 +81,18 @@ public class GameController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/users")
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
 
+    @PutMapping("/users/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        return userService.updateUser(id, updatedUser);
+    }
 
-
-
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
 }

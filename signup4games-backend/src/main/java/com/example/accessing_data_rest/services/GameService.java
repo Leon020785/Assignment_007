@@ -6,13 +6,13 @@ import com.example.accessing_data_rest.model.Player;
 import com.example.accessing_data_rest.model.User;
 import com.example.accessing_data_rest.repositories.GameRepository;
 import com.example.accessing_data_rest.repositories.PlayerRepository;
-import com.example.accessing_data_rest.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -25,7 +25,7 @@ public class GameService {
     private PlayerRepository playerRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
 
     @Transactional
@@ -40,21 +40,28 @@ public class GameService {
 
         game.setState(GameState.SIGNUP);
         gameRepository.save(game);
-        System.out.println("✅ Game created: " + game.getUid());
 
-        // Automatically add the owner as a player
+        System.out.println("Game created: " + game.getUid());
+
+        User owner = userService.getUserById(game.getOwner().getUid())
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
         Player player = new Player();
         player.setGame(game);
-        player.setUser(game.getOwner());
-        player.setName(game.getOwner().getName());
+        player.setUser(owner); // Ensure `setUser` accepts a `User` object
+        player.setName(owner.getName());
         playerRepository.save(player);
 
         System.out.println("👤 Player created for owner: " + game.getOwner().getName());
 
         return game;
+
     }
     @Transactional
-    public Player joinGame(Game game, User user) {
+    public Player joinGame(Game game, Long userId) {
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         Player player = new Player();
         player.setGame(game);
         player.setUser(user);

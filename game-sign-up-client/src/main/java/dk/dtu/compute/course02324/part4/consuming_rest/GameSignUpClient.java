@@ -158,7 +158,7 @@ public class GameSignUpClient extends Application {
     private void createGame() {
         try {
             Game createdGame = webClient.post()
-                    .uri("/roborally/games/create")
+                    .uri("/games/create")
                     .retrieve()
                     .bodyToMono(Game.class)
                     .block();
@@ -188,12 +188,12 @@ public class GameSignUpClient extends Application {
             try {
                 long gameId = Long.parseLong(gameIdStr);
 
-                joinedPlayer = webClient.post() // <-- ændret: gemmer spilleren i en feltvariabel
+                joinedPlayer = webClient.post()
                         .uri(uriBuilder -> uriBuilder
-                                .path("/roborally/games/joingame")
-                                .queryParam("gameid", gameId)
+                                .path("/games/join")
+                                .queryParam("gameId", gameId)
+                                .queryParam("userId", signedInUser.getUid())  // <-- added userId
                                 .build())
-                        .bodyValue(signedInUser)
                         .retrieve()
                         .bodyToMono(Player.class)
                         .block();
@@ -208,6 +208,7 @@ public class GameSignUpClient extends Application {
             }
         });
     }
+
     private void signUp(String name) {
         try {
             User user = new User();
@@ -246,7 +247,7 @@ public class GameSignUpClient extends Application {
             if (response == ButtonType.OK) {
                 try {
                     webClient.delete()
-                            .uri("/roborally/games/player/" + joinedPlayer.getUid())
+                            .uri("/games/players/" + joinedPlayer.getUid())
                             .retrieve()
                             .toBodilessEntity()
                             .block();
@@ -259,10 +260,6 @@ public class GameSignUpClient extends Application {
             }
         });
     }
-
-
-
-
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
