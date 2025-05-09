@@ -17,26 +17,27 @@ public class PlayerService {
     @Autowired
     private GameRepository gameRepository;
 
-    public  Player deletePlayer(long playerId, String username) throws Throwable {
+    public void deletePlayer(long playerId, String username) {
         System.out.println("Attempting to delete player with ID: " + playerId);
 
         Player player = playerRepository.findByUid(playerId);
         if (player == null) {
-            throw new Exception("Player with ID: " + playerId + " not found");
+            throw new RuntimeException("Player with ID: " + playerId + " not found");
         }
 
         Game game = player.getGame();
         User user = player.getUser();
 
-        // Only the player themselves or the game owner can delete the player
-        if (!user.getName().equals(username) &&
-                !game.getOwner().getName().equals(username)) {
+        // Only allow the player or the game owner to delete the player
+        if (!user.getName().equals(username) && !game.getOwner().getName().equals(username)) {
             throw new RuntimeException("Not authorized to delete this player");
         }
 
-        game.getPlayers().remove(player); // Remove from the game's player list
+        // Remove the player from the game's player list
+        game.getPlayers().remove(player);
         playerRepository.delete(player);  // Delete from the database
         gameRepository.save(game);        // Save the updated game
-        return player;
+
+        System.out.println("✅ Player with ID " + playerId + " deleted successfully.");
     }
 }

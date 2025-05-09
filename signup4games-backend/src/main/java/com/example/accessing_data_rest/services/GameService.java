@@ -30,27 +30,28 @@ public class GameService {
 
     @Transactional
     public Game createGame(Game game) {
-        gameRepository.save(game);
-
-        System.out.println("✅ Game created: " + game.getUid());
-
-
-
-        User owner = game.getOwner();
-        if (owner != null) {
-            Player player = new Player();
-            player.setGame(game);
-            player.setUser(owner);
-            player.setName(owner.getName());
-            playerRepository.save(player);
-
-            System.out.println("👤 Player created: " + owner.getName());
-
-        } else {
-            System.out.println("No owner set for the game. ");
+        if (game.getOwner() == null || game.getOwner().getName() == null) {
+            throw new IllegalArgumentException("Game must have a valid owner.");
         }
 
-        return gameRepository.findPlayerByUid(game.getUid());
+        if (game.getName() == null || game.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Game name cannot be empty.");
+        }
+
+        game.setState(GameState.SIGNUP);
+        gameRepository.save(game);
+        System.out.println("✅ Game created: " + game.getUid());
+
+        // Automatically add the owner as a player
+        Player player = new Player();
+        player.setGame(game);
+        player.setUser(game.getOwner());
+        player.setName(game.getOwner().getName());
+        playerRepository.save(player);
+
+        System.out.println("👤 Player created for owner: " + game.getOwner().getName());
+
+        return game;
     }
     @Transactional
     public Player joinGame(Game game, User user) {
@@ -97,6 +98,11 @@ public class GameService {
             throw new RuntimeException("Only the game owner can delete this game");
         }
 
+        // Remove all players from the game before deletion
+        playerRepository.deleteAll(game.getPlayers());
+        gameRepository.delete(game);
+
+        System.out.println("✅ Game with ID " + gameId + " deleted successfully.");
     }
 
     public Game startGame(long gameId) {
