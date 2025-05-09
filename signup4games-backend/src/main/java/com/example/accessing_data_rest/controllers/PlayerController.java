@@ -66,5 +66,10 @@ public class PlayerController {
         return gameService.startGame(gameId);
     }
 
+    @GetMapping("/{id}")
+    public Player getPlayerById(@PathVariable long id) {
+        return playerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found with ID: " + id));
+    }
 
 }

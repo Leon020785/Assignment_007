@@ -7,6 +7,7 @@ import com.example.accessing_data_rest.repositories.GameRepository;
 import com.example.accessing_data_rest.repositories.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PlayerService {
@@ -17,27 +18,26 @@ public class PlayerService {
     @Autowired
     private GameRepository gameRepository;
 
+    @Transactional
     public void deletePlayer(long playerId, String username) {
-        System.out.println("Attempting to delete player with ID: " + playerId);
+        System.out.println("🗑️ Attempting to delete player with ID: " + playerId);
 
         Player player = playerRepository.findByUid(playerId);
         if (player == null) {
-            throw new RuntimeException("Player with ID: " + playerId + " not found");
+            throw new RuntimeException("❌ Player with ID " + playerId + " not found.");
         }
 
         Game game = player.getGame();
         User user = player.getUser();
 
-        // Only allow the player or the game owner to delete the player
         if (!user.getName().equals(username) && !game.getOwner().getName().equals(username)) {
-            throw new RuntimeException("Not authorized to delete this player");
+            throw new RuntimeException("🚫 Not authorized to delete this player (username: " + username + ").");
         }
 
-        // Remove the player from the game's player list
         game.getPlayers().remove(player);
-        playerRepository.delete(player);  // Delete from the database
-        gameRepository.save(game);        // Save the updated game
+        playerRepository.delete(player);
+        gameRepository.save(game);
 
-        System.out.println("✅ Player with ID " + playerId + " deleted successfully.");
+        System.out.println("✅ Player with ID " + playerId + " deleted successfully from game ID " + game.getUid() + ".");
     }
 }
