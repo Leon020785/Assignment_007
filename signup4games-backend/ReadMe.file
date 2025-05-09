@@ -1,0 +1,23 @@
+This project is the backend component for Assignment 7 in Advanced Programming. It is built using Spring Boot and serves as a RESTful API server for user, game, and player management.
+
+Implemented features:
+
+Users can be created and looked up by name
+
+-Games can be created by a user
+
+A list of open games (in SIGNUP state) can be retrieved
+
+A user can join a game as a player
+
+A player can leave a game they have joined
+
+A game can be deleted by its owner
+
+A game can be started if the minimum number of players has joined (status changes to ACTIVE)
+
+
+A game can only be started if the number of players is at least the game's minimum required.
+Only the owner of a game can delete it.
+All data is stored in memory using Spring Data repositories.
+The application runs on http://localhost:8080/ by default.
